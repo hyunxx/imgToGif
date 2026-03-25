@@ -2,36 +2,44 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fal } from "@fal-ai/client";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
+  // 1. 데이터가 잘 들어왔는지 확인 (터미널 로그 확인용)
   const { imageUrl, userPrompt } = req.body;
+  console.log("--- 백엔드 수신 데이터 ---");
+  console.log("이미지 URL:", imageUrl);
+  console.log("사용자 프롬프트:", userPrompt);
+
+  if (!imageUrl || !userPrompt) {
+    return res.status(400).json({ error: "데이터가 누락되었습니다." });
+  }
 
   try {
-    // 1. Gemini로 프롬프트 고도화 (3초 분량의 묘사 포함)
+    // 2. Gemini 호출
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
-    const promptRefiner = `
-      입력된 이미지와 사용자의 의도를 바탕으로 Kling AI용 영어 프롬프트를 작성하세요.
-      이미지는 시작 프레임입니다. 3초 동안 자연스럽고 역동적인 움직임이 있도록 묘사하세요.
-      사용자 의도: ${userPrompt}
-    `;
+    const promptRefiner = `Write a cinematic English prompt for Kling AI video model based on this description: ${userPrompt}. The image is the start frame.`;
     const geminiResult = await model.generateContent(promptRefiner);
     const refinedPrompt = geminiResult.response.text();
+    console.log("Gemini 강화 프롬프트:", refinedPrompt);
 
-    // 2. fal.ai Kling 2.6 Pro 호출
+    // 3. fal.ai Kling 2.6 Pro 호출 (안전하게 duration "5" 사용)
     const result = await fal.subscribe("fal-ai/kling-video/v2.6/pro/image-to-video", {
       input: {
         image_url: imageUrl,
         prompt: refinedPrompt,
-        duration: "3", // 모델 사양에 따라 5초가 기본일 수 있음
-        aspect_ratio: "16:9"
+        duration: "5", // 3 대신 5로 고정
       },
     });
 
-    res.status(200).json({ videoUrl: result.video.url, refinedPrompt });
+    console.log("Kling 생성 완료!");
+    return res.status(200).json({ videoUrl: result.video.url });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    // 🔥 터미널에 에러 내용을 아주 자세히 찍습니다.
+    console.error("!!! SERVER ERROR !!!");
+    console.error(error); 
+    return res.status(500).json({ error: error.message });
   }
 }

@@ -1,6 +1,5 @@
 {
   "framework": "vite",
-  "devCommand": "vite --port 5173",
   "rewrites": [
     {
       "source": "/api/(.*)",

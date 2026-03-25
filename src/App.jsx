@@ -1,36 +1,38 @@
 import { useState } from "react";
 import axios from "axios";
+import { fal } from "@fal-ai/client";
+fal.config({
+  credentials: import.meta.env.VITE_FAL_KEY,
+});
 
+// 클라이언트 측에서도 fal 키를 일시적으로 사용해야 할 수 있습니다.
+// (Vite 환경변수: VITE_FAL_KEY)
 function App() {
-  const [imageFile, setImageFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 이미지 파일 선택 시 미리보기 처리 (여기서는 단순하게 URL로 가정하거나 클라우드 업로드 필요)
-  // 테스트를 위해 직접 이미지 URL을 입력받거나 외부 호스팅을 권장합니다.
-  const handleFileChange = (e) => {
-    // 사용자가 선택한 파일 객체를 그대로 저장
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
+  
 
   const generateVideo = async () => {
-    if (!imageFile || !prompt) return alert("이미지와 프롬프트를 입력하세요!");
-    
+    if (!file || !prompt) return alert("이미지와 프롬프트를 입력하세요!");
     setLoading(true);
-    
-    // 파일을 서버(API Route)로 보내기 위해 FormData 사용
-    const formData = new FormData();
-    formData.append("image", imageFile);
-    formData.append("userPrompt", prompt);
 
     try {
-      // 주의: /api/generate로 FormData를 보낼 때는 헤더 설정이 중요합니다.
-      const res = await axios.post("/api/generate", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+      // 1. fal.ai 서버에 로컬 파일을 먼저 업로드하고 URL을 받습니다.
+      // 이 함수가 로컬 파일을 fal.ai의 CDN 주소로 바꿔줍니다.
+      const uploadResult = await fal.storage.upload(file);
+      const imageUrl = uploadResult; 
+      console.log("업로드된 이미지 URL:", imageUrl);
+      console.log("업로드 결과 전체 데이터:", uploadResult);
+
+      // 2. 이제 서버(/api/generate)에는 이미지 파일이 아닌 'URL 문자열'만 보냅니다.
+      const res = await axios.post("/api/generate", {
+        imageUrl: imageUrl, // 문자열 전달
+        userPrompt: prompt,
       });
+
       setVideoUrl(res.data.videoUrl);
     } catch (err) {
       console.error(err);
@@ -43,7 +45,7 @@ function App() {
   return (
     <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
       <h2>🎬 Kling 2.6 AI Video Maker</h2>
-      <input type="file" accept="image/*" onChange={handleFileChange} />
+      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
       <br /><br />
       <textarea 
         placeholder="어떤 움직임을 주고 싶나요?" 
