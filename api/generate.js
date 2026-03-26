@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { fal } from "@fal-ai/client";
 
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
@@ -11,18 +12,17 @@ export default async function handler(req, res) {
 
   try {
 
-
     console.log("Kling 호출 시작...");
-    const result = await fal.subscribe("fal-ai/kling-video/v2.6/pro/image-to-video", {
+    const result = await fal.subscribe("fal-ai/kling-video/v2.5-turbo/pro/image-to-video", {
       input: {
         image_url: imageUrl,
         prompt: `STRICT STYLE ADHERENCE: Maintain the exact art style and character design. Action: ${userPrompt}`,
         duration: "5",
+        generate_audio: false,
       },
       logs: true,
     });
 
-    // 3. [해결] 로그를 바탕으로 수정한 확실한 URL 추출 로직
     const finalVideoUrl = result.data?.video?.url || result.video?.url || result.video_url || result.url;
 
     if (!finalVideoUrl) {
@@ -34,7 +34,11 @@ export default async function handler(req, res) {
     return res.status(200).json({ videoUrl: finalVideoUrl });
 
   } catch (error) {
-    console.error("!!! SERVER ERROR !!!", error);
-    return res.status(500).json({ error: error.message });
+
+      if (error.message.includes("billing") || error.status === 402) {
+        return res.status(402).json({ code: "NO_CREDIT", error: "크레딧 부족" });
+      }
+
+      return res.status(500).json({ code: "GEN_ERROR", error: "비디오 생성 실패" });
   }
 }
