@@ -71,10 +71,11 @@ function App() {
       <WarningIcon color="#856404" />
       
       <p style={{ margin: 0, lineHeight: 1.4 }}>
-        <strong>팁:</strong> 한 번에 너무 많은 동작을 요구할 경우,
+        {/* <strong>팁:</strong> 한 번에 너무 많은 동작을 요구할 경우,
         그림체가 뭉개지거나 원하는대로 출력이 안 될 수 있습니다. <br />
         비율을 16:9 고정입니다 ^__^ 언젠간 업데이트 하면 바뀔수도.. <br />
-        문제가 있을경우 다브류에게 연락주세요
+        문제가 있을경우 다브류에게 연락주세요 */}
+        업 데 이 트 중 입 니 다 !
       </p>
     </div>
       <div style={{ marginBottom: "20px",display:"flex",justifyContent:"center",flexDirection:"column",alignItems:"center" }}>
