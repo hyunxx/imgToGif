@@ -1,16 +1,8 @@
-# React + Vite
+# 상영관 W
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
+vite + react + vercel로 이루어진 특별한 백엔드 개발 없이 간단하게 이미지를 5초정도의 비디오로 바꿔주는 서비스입니다. pc 사용을 권장합니다.
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+에러가 발생할 경우 하단의 에러 메세지를 따라주세요. 만약 크레딧이 모자란 경우 새로 결제가 필요합니다. 저에게 문의주세요.
